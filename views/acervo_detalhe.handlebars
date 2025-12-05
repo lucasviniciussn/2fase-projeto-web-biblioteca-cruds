@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes Acervo</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>Gestão de Bibliotecas</h1>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/livros">Livros</a></li>
+                <li><a href="/bibliotecas">Bibliotecas</a></li>
+                <li><a href="/usuarios">Usuários</a></li>
+                <li><a href="/acervo">Acervo</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
+        <h2>Editar Cópia #{{item.id}} - {{itemName}}</h2>
+        
+        <form id="formEdit">
+            <!-- Seleção de Livro -->
+            <div class="form-group">
+                <label>Livro:</label>
+                <select name="livroId">
+                    {{#each livros}}
+                        <option value="{{this.id}}" {{#if (eq ../item.livroId this.id)}}selected{{/if}}>
+                            {{this.nome}}
+                        </option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <!-- Seleção de Biblioteca -->
+            <div class="form-group">
+                <label>Biblioteca (Localização):</label>
+                <select name="bibliotecaId">
+                    {{#each bibliotecas}}
+                        <option value="{{this.id}}" {{#if (eq ../item.bibliotecaId this.id)}}selected{{/if}}>
+                            CNPJ: {{this.cnpj}}
+                        </option>
+                    {{/each}}
+                </select>
+            </div>
+
+            <!-- Campo de Status/Usuário -->
+            <div class="form-group">
+                <label>ID do Usuário (Empréstimo):</label>
+                <input type="number" name="idUsuario" value="{{item.usuarioId}}" placeholder="0 ou vazio para Disponível">
+                <small style="color: #666;">
+                    Status atual: 
+                    <span style="font-weight: bold; color: {{#if item.usuarioId}}#e74c3c{{else}}#27ae60{{/if}};">
+                        {{#if item.usuarioId}}Emprestado{{else}}Disponível{{/if}}
+                    </span>
+                </small>
+            </div>
+
+            <button type="submit">Salvar</button>
+            <button type="button" class="delete" style="background-color: #e74c3c; margin-left: 10px;" onclick="deletar()">Excluir</button>
+        </form>
+    </main>
+
+    <script>
+        const id = {{item.id}};
+        
+        // --- ATUALIZAR (PUT) ---
+        document.getElementById('formEdit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            
+            const res = await fetch('/acervo/'+id, { 
+                method: 'PUT', 
+                headers:{'Content-Type':'application/json'}, 
+                body: JSON.stringify(data)
+            });
+            
+            if(res.ok) {
+                alert('Cópia atualizada com sucesso!');
+                window.location.reload();
+            } else {
+                const err = await res.json();
+                alert('Erro: ' + err.error);
+            }
+        });
+
+        async function deletar() {
+            if(confirm('Tem certeza? Isso apagará esta cópia física e reduzirá a contagem do livro.')) {
+                const res = await fetch('/acervo/'+id, {method:'DELETE'});
+                
+                if(res.ok) {
+                    window.location.href='/acervo';
+                } else {
+                    const err = await res.json();
+                    alert('Erro ao deletar: ' + (err.error || 'Erro desconhecido'));
+                }
+            }
+        }
+    </script>
+</body>
+</html>

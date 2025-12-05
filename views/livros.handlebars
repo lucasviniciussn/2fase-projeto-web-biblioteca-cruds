@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livros</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>Gestão de Bibliotecas</h1>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/livros">Livros</a></li>
+                <li><a href="/bibliotecas">Bibliotecas</a></li>
+                <li><a href="/usuarios">Usuários</a></li>
+                <li><a href="/acervo">Acervo</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="container">
+        <h2>Cadastrar Novo Livro</h2>
+        <form id="formCreate">
+            <div class="form-group">
+                <label>Nome:</label>
+                <input type="text" name="nome" required>
+            </div>
+            <div class="form-group">
+                <label>Categoria:</label>
+                <input type="text" name="categoria" required>
+            </div>
+            <div class="form-group">
+                <label>Tags (separadas por vírgula):</label>
+                <input type="text" name="tags" required>
+            </div>
+            <div class="form-group">
+                <label>Quantidade Total:</label>
+                <input type="number" name="quantidade_total" required>
+            </div>
+            <div class="form-group">
+                <label>Biblioteca Inicial:</label>
+                <select name="idbiblioteca">
+                    {{#each bibliotecas}}
+                        <option value="{{this.id}}">CNPJ: {{this.cnpj}}</option>
+                    {{/each}}
+                </select>
+            </div>
+            <button type="submit">Cadastrar</button>
+        </form>
+
+        <h2 style="margin-top: 40px;">Lista de Livros (Clique para editar)</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th>Categoria</th>
+                    <th>Qtd Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{#each livros}}
+                <tr onclick="window.location.href='/livros/{{this.id}}'" style="cursor:pointer">
+                    <td>{{this.id}}</td>
+                    <td>{{this.nome}}</td>
+                    <td>{{this.categoria}}</td>
+                    <td>{{this.quantidade_total}}</td>
+                </tr>
+                {{else}}
+                <tr><td colspan="4">Nenhum livro cadastrado.</td></tr>
+                {{/each}}
+            </tbody>
+        </table>
+    </main>
+
+    <script>
+        document.getElementById('formCreate').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData.entries());
+            
+            const res = await fetch('/livros/new', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(data)
+            });
+            
+            if(res.ok) window.location.reload();
+            else alert('Erro ao criar');
+        });
+    </script>
+</body>
+</html>

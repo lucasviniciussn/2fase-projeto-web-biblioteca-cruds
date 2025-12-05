@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Usuário Detalhe</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>Gestão de Bibliotecas</h1>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/livros">Livros</a></li>
+                <li><a href="/bibliotecas">Bibliotecas</a></li>
+                <li><a href="/usuarios">Usuários</a></li>
+                <li><a href="/acervo">Acervo</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
+        <h2>Editar Usuário</h2>
+        <form id="formEdit">
+            <div class="form-group"><label>Nome:</label><input type="text" name="nome" value="{{usuario.nome}}"></div>
+            <div class="form-group"><label>CPF:</label><input type="text" name="cpf" value="{{usuario.cpf}}"></div>
+            <div class="form-group"><label>Idade:</label><input type="number" name="idade" value="{{usuario.idade}}"></div>
+            <div class="form-group">
+                <label>Nível:</label>
+                <select name="nivel">
+                    {{#each niveis}}
+                        <option value="{{this.id}}">{{this.nome}}</option>
+                    {{/each}}
+                </select>
+                <small>Nível atual ID: {{usuario.nivel}}</small>
+            </div>
+            <button type="submit">Salvar</button>
+            <button type="button" class="delete" onclick="deletar()">Excluir</button>
+        </form>
+    </main>
+    <script>
+        const id = {{usuario.id}};
+        document.getElementById('formEdit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            const res = await fetch('/usuarios/'+id, { method: 'PUT', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)});
+            if(res.ok) window.location.reload();
+        });
+        async function deletar() {
+            if(confirm('Apagar usuario?')) {
+                const res = await fetch('/usuarios/'+id, {method:'DELETE'});
+                if(res.ok) window.location.href='/usuarios';
+            }
+        }
+    </script>
+</body>
+</html>

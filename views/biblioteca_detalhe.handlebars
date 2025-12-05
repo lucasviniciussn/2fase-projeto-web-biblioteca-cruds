@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalhes Biblioteca</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <h1>Gestão de Bibliotecas</h1>
+            <ul>
+                <li><a href="/">Início</a></li>
+                <li><a href="/livros">Livros</a></li>
+                <li><a href="/bibliotecas">Bibliotecas</a></li>
+                <li><a href="/usuarios">Usuários</a></li>
+                <li><a href="/acervo">Acervo</a></li>
+            </ul>
+        </nav>
+    </header>
+    <main class="container">
+        <h2>Editar Biblioteca #{{biblioteca.id}}</h2>
+        <form id="formEdit">
+            <div class="form-group">
+                <label>CNPJ:</label>
+                <input type="text" name="cnpj" value="{{biblioteca.cnpj}}">
+            </div>
+            <div class="form-group">
+                <label>Capacidade:</label>
+                <input type="number" name="acervo" value="{{biblioteca.acervo_total}}">
+            </div>
+            <div class="form-group">
+                <label>CEP:</label>
+                <input type="text" name="cep" value="{{biblioteca.cep}}">
+            </div>
+            <button type="submit">Salvar</button>
+            <button type="button" class="delete" style="background-color: #e74c3c; margin-left: 10px;" onclick="deletar()">Excluir</button>
+        </form>
+    </main>
+    <script>
+        const id = {{biblioteca.id}};
+        document.getElementById('formEdit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = Object.fromEntries(new FormData(e.target));
+            
+            const res = await fetch('/bibliotecas/'+id, { 
+                method: 'PUT', 
+                headers:{'Content-Type':'application/json'}, 
+                body: JSON.stringify(data)
+            });
+            
+            if(res.ok) window.location.reload();
+            else alert('Erro ao atualizar');
+        });
+
+        async function deletar() {
+            if(confirm('Apagar biblioteca?')) {
+                const res = await fetch('/bibliotecas/'+id, {method:'DELETE'});
+                if(res.ok) window.location.href='/bibliotecas';
+                else alert('Erro ao deletar');
+            }
+        }
+    </script>
+</body>
+</html>
